@@ -1,0 +1,32 @@
+[
+  {
+    "id": 0,
+    "name": "BASE",
+    "description": "BASE product rules",
+    "baseInterestRate": 5.0,
+    "highCreditScoreInterestOffsetRate": -0.3,
+    "lowCreditScoreInterestOffsetRate": 0.5,
+    "goodCreditScore": 720,
+    "minimumCreditScore": 680,
+    "disqualifiedStates": [
+      "Florida"
+    ]
+  },
+  {
+    "id": 1,
+    "name": "7-1 ARM",
+    "description": "7-1 ARM product rules",
+    "additionalProductInterestRate": 0.5
+  },
+  {
+    "id": 2,
+    "name": "5-1 ARM",
+    "description": "5-1 ARM product rules",
+    "additionalProductInterestRate": 0.75
+  },
+  {
+    "id": 3,
+    "name": "VA",
+    "description": "VA product rules"
+  }
+]
