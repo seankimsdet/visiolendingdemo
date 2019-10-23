@@ -16,7 +16,7 @@ import java.util.List;
 
 public class RulesEngine extends ProductRules implements IRulesEngine {
 
-    private final static String filePath = "src/main/resources/productRules.json";
+    private final static String filePath = Utils.RulesFileName.getValue();
 
     public RulesEngine() {
     }
@@ -28,6 +28,7 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
         double lowCreditScoreInterestOffsetRate = 0;
         double additionalProductInterestRate = 0;
         Integer goodCreditScore = 0;
+        Integer minimumCreditScore = 0;
         JSONObject productRules;
         ArrayList<String> disqualifiedStates = null;
 
@@ -38,8 +39,8 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
             //load product-base rules from productRules.json file
             JSONObject baseRules = getProductRules("BASE");
             baseInterestRate = (double) baseRules.get("baseInterestRate");
-            highCreditScoreInterestOffsetRate = (double) baseRules.get("highCreditScoreInterestOffsetRate");
-            lowCreditScoreInterestOffsetRate = (double) baseRules.get("lowCreditScoreInterestOffsetRate");
+            highCreditScoreInterestOffsetRate = (double) baseRules.get("highCreditScoreInterestRateOffset");
+            lowCreditScoreInterestOffsetRate = (double) baseRules.get("lowCreditScoreInterestRateOffset");
             goodCreditScore = (Integer) baseRules.get("goodCreditScore");
             JSONArray states = (JSONArray) baseRules.get("disqualifiedStates");
 
@@ -52,6 +53,7 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
 
             //load product-specific rules from productRules.json file
             productRules = getProductRules(product.getName());
+            minimumCreditScore = (Integer) productRules.get("minimumCreditScore");
             additionalProductInterestRate = (double) productRules.get("additionalProductInterestRate");
 
         } catch (Exception e) {
@@ -64,14 +66,16 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
         product.setLowCreditScoreInterestOffsetRule(lowCreditScoreInterestOffsetRate);
         product.setDiscountQualifyingCreditScoreRule(goodCreditScore);
         product.setAdditionalProductInterestRate(additionalProductInterestRate);
+        product.setMinimumCreditScore(minimumCreditScore);
         product.setProductDisqualifiedStatesRule(disqualifiedStates);
 
         //store and return product-base and product-specific rules as HashMap
         HashMap hm = new HashMap();
         hm.put(RuleTypes.BaseInterestRate, product.getBaseInterestRate());
-        hm.put(RuleTypes.HighCreditScoreInterestOffsetRate, product.getHighCreditScoreInterestOffsetRule());
-        hm.put(RuleTypes.LowCreditScoreInterestOffsetRate, product.getLowCreditScoreInterestOffsetRule());
+        hm.put(RuleTypes.HighCreditScoreInterestRateOffset, product.getHighCreditScoreInterestOffsetRule());
+        hm.put(RuleTypes.LowCreditScoreInterestRateOffset, product.getLowCreditScoreInterestOffsetRule());
         hm.put(RuleTypes.DiscountQualifyingCreditScore, product.getDiscountQualifyingCreditScoreRule());
+        hm.put(RuleTypes.MinimumCreditScore, product.getMinimumCreditScoreRules());
         hm.put(RuleTypes.AdditionalInterestRate, product.getAdditionalProductInterestRate());
         hm.put(RuleTypes.DisqualifiedStates, product.getProductDisqualifiedStates());
 
@@ -93,19 +97,19 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
         product.setIsDisqualified(isDisqualified);
     }
 
+    //Determine interest rate offset value
     private double getInterestRateOffset(IPerson person, IProduct product, HashMap rules) {
 
-        double interestOffset;
-        Integer creditScore;
-        Integer discountQualifyingCreditScore;
+        Integer creditScore = person.getCreditScore();
+        Integer discountQualifyingCreditScore = (Integer) rules.get(RuleTypes.DiscountQualifyingCreditScore);
 
-        creditScore = person.getCreditScore();
-        discountQualifyingCreditScore = (Integer) rules.get(RuleTypes.DiscountQualifyingCreditScore);
+        //based on person's credit score being higher/equal or lower than the discount qualifying credit score
+        //applicable interest rate offset value from rules(HashMap) is assigned to interestOffset variable
+        double interestOffset = creditScore >= discountQualifyingCreditScore
+                ? (double) rules.get(RuleTypes.HighCreditScoreInterestRateOffset)
+                : (double) rules.get(RuleTypes.LowCreditScoreInterestRateOffset);
 
-        interestOffset = creditScore >= discountQualifyingCreditScore
-                ? (double) rules.get(RuleTypes.HighCreditScoreInterestOffsetRate)
-                : (double) rules.get(RuleTypes.LowCreditScoreInterestOffsetRate);
-
+        //get additional interest rate offset value for the product
         double productInterestOffset = product.getAdditionalProductInterestRate();
 
         interestOffset = interestOffset + productInterestOffset;
@@ -113,19 +117,32 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
         return interestOffset;
     }
 
+    //Check if applicant is disqualified due to person's residing State or credit score, based on the product's rules
     private boolean checkIfIsDisqualified(IPerson person, IProduct product) {
 
+        //disqualified by default
         boolean isDisqualified = true;
-        String state = person.getState();
 
-        List<String> disQualifiedStates = product.getProductDisqualifiedStates();
-        if(state != null && !disQualifiedStates.contains(state)) {
+        String state = person.getState();
+        Integer creditScore = person.getCreditScore();
+        Integer minCreditScoreRule = product.getMinimumCreditScoreRules();
+
+        List<String> disqualifiedStatesRule = product.getProductDisqualifiedStates();
+
+        // qualified if disqualifiedStatesRule list does not contain person's state
+        if(state != null && !disqualifiedStatesRule.contains(state)) {
             isDisqualified = false;
+
+            // disqualified if person's credit score is lower then minCreditScoreRule
+            if(creditScore < minCreditScoreRule) {
+                isDisqualified = true;
+            }
         }
 
         return isDisqualified;
     }
 
+    //Get JSONObject based on the product name
     private static JSONObject getProductRules(String productName) {
 
         JSONArray jsonArray = parseJSONFile();
@@ -142,6 +159,7 @@ public class RulesEngine extends ProductRules implements IRulesEngine {
         return null;
     }
 
+    //Get JSONArray from JSON file in resources (productRules.json)
     private static JSONArray parseJSONFile() {
 
         String content = null;

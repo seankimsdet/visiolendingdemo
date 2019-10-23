@@ -5,7 +5,8 @@ import org.junit.jupiter.params.support.AnnotationConsumer;
 import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
-public class VariableArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<ProductRulesEngineTestSuite.VariableSource> {
+public class VariableArgumentsProvider implements ArgumentsProvider,
+        AnnotationConsumer<ProductRulesEngineTestSuite.VariableSource> {
 
     private String variableName;
 

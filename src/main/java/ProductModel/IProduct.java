@@ -40,4 +40,7 @@ public interface IProduct {
 
     void setProductDisqualifiedStatesRule(List<String> disqualifiedStates);
 
+    void setMinimumCreditScore(Integer minimumCreditScore);
+
+    Integer getMinimumCreditScoreRules();
 }

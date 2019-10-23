@@ -64,22 +64,22 @@ public class Product extends ProductRules implements IProduct {
 
     @Override
     public void setHighCreditScoreInterestOffsetRule(double interestOffsetRate) {
-        ProductRules.highCreditScoreInterestOffsetRate.set(interestOffsetRate);
+        ProductRules.highCreditScoreInterestRateOffset.set(interestOffsetRate);
     }
 
     @Override
     public double getHighCreditScoreInterestOffsetRule() {
-        return ProductRules.highCreditScoreInterestOffsetRate.get();
+        return ProductRules.highCreditScoreInterestRateOffset.get();
     }
 
     @Override
     public void setLowCreditScoreInterestOffsetRule(double interestOffsetRate) {
-        ProductRules.lowCreditScoreInterestOffsetRate.set(interestOffsetRate);
+        ProductRules.lowCreditScoreInterestRateOffset.set(interestOffsetRate);
     }
 
     @Override
     public double getLowCreditScoreInterestOffsetRule() {
-        return ProductRules.lowCreditScoreInterestOffsetRate.get();
+        return ProductRules.lowCreditScoreInterestRateOffset.get();
     }
 
     @Override
@@ -90,6 +90,16 @@ public class Product extends ProductRules implements IProduct {
     @Override
     public void setProductDisqualifiedStatesRule(List<String> disqualifiedStates) {
         ProductRules.disqualifiedStates.set(disqualifiedStates);
+    }
+
+    @Override
+    public Integer getMinimumCreditScoreRules() {
+        return ProductRules.minimumCreditScore.get();
+    }
+
+    @Override
+    public void setMinimumCreditScore(Integer minimumCreditScore) {
+        ProductRules.minimumCreditScore.set(minimumCreditScore);
     }
 
     @Override

@@ -4,10 +4,9 @@
     "name": "BASE",
     "description": "BASE product rules",
     "baseInterestRate": 5.0,
-    "highCreditScoreInterestOffsetRate": -0.3,
-    "lowCreditScoreInterestOffsetRate": 0.5,
+    "highCreditScoreInterestRateOffset": -0.3,
+    "lowCreditScoreInterestRateOffset": 0.5,
     "goodCreditScore": 720,
-    "minimumCreditScore": 680,
     "disqualifiedStates": [
       "Florida"
     ]
@@ -16,17 +15,42 @@
     "id": 1,
     "name": "7-1 ARM",
     "description": "7-1 ARM product rules",
-    "additionalProductInterestRate": 0.5
+    "additionalProductInterestRate": 0.5,
+    "minimumCreditScore": 580
   },
   {
     "id": 2,
     "name": "5-1 ARM",
     "description": "5-1 ARM product rules",
-    "additionalProductInterestRate": 0.75
+    "additionalProductInterestRate": 0.75,
+    "minimumCreditScore": 580
   },
   {
     "id": 3,
+    "name": "FHA",
+    "description": "FHA product rules",
+    "additionalProductInterestRate": 0,
+    "minimumCreditScore": 580
+  },
+  {
+    "id": 4,
     "name": "VA",
-    "description": "VA product rules"
+    "description": "VA product rules",
+    "additionalProductInterestRate": 0,
+    "minimumCreditScore": 580
+  },
+  {
+    "id": 5,
+    "name": "USDA",
+    "description": "USDA product rules",
+    "additionalProductInterestRate": 0,
+    "minimumCreditScore": 640
+  },
+  {
+    "id": 6,
+    "name": "CONVENTIONAL",
+    "description": "Conventional product rules",
+    "additionalProductInterestRate": 0,
+    "minimumCreditScore": 620
   }
 ]

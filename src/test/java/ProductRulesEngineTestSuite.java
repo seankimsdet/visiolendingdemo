@@ -18,24 +18,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 @DisplayName("Rules Engine Test Suite")
-public class ProductRulesEngineTestSuite extends TestBase{
+class ProductRulesEngineTestSuite extends TestBase{
 
     @Test
-    @DisplayName("Sample test")
-    public void Test1() {
+    @DisplayName("Simple test")
+    void SimpleTest() {
         IPerson person = new Person(720, "Florida");
         IProduct product = new Product("7-1 ARM", 5.0);
         IRulesEngine rules_engine = new RulesEngine();
         HashMap rules = loadRules();
         rules_engine.runRules(person, product, rules);
 
-        assertEquals(5.2, product.getProductInterestRate());
-        assertTrue(product.getIsDisqualified());
+        double expectedInterestRate = 5.2;
+        double actualInterestRate = product.getProductInterestRate();
+        assertEquals(expectedInterestRate, actualInterestRate);
+
+        boolean isDisqualified = product.getIsDisqualified();
+        assertTrue(isDisqualified);
     }
 
 
     @TestFactory
-    Stream<DynamicTest> creditScoreTests() {
+    Stream<DynamicTest> TestFactoryTest() {
         Stream<Integer> inputStream = Stream.of(721, 720, 719);
         return inputStream.map(
                 input -> dynamicTest("Display name for input" + input, () -> {
@@ -47,7 +51,10 @@ public class ProductRulesEngineTestSuite extends TestBase{
 
 
 
-    //CreditScore || State || ProductName || RateOffset || Expected InterestRate || IsDisqualified
+    /* Test Data Arguments order:
+
+        CreditScore || State || ProductName || RateOffset || Expected: InterestRate || Expected: IsDisqualified
+    */
     static Stream<Arguments> arguments = Stream.of(
             Arguments.of(721, "Florida", "7-1 ARM", 5.0, 5.2, true),
             Arguments.of(719, "Florida", "7-1 ARM", 5.0, 6.0, true),
@@ -57,7 +64,8 @@ public class ProductRulesEngineTestSuite extends TestBase{
 
     @ParameterizedTest
     @VariableSource("arguments")
-    void Test2(Integer creditScore, String state, String productName, double rateOffset, double expectedInterest, boolean isDisqualified) {
+    void ParameterizedTest(Integer creditScore, String state, String productName,
+                           double rateOffset, double expectedInterest, boolean expectedIsDisqualified) {
 
         IPerson person = new Person(creditScore, state);
         IProduct product = new Product(productName, rateOffset);
@@ -66,7 +74,6 @@ public class ProductRulesEngineTestSuite extends TestBase{
         rules_engine.runRules(person, product, rules);
 
         assertEquals(expectedInterest, product.getProductInterestRate());
-        assertEquals(isDisqualified, product.getIsDisqualified());
+        assertEquals(expectedIsDisqualified, product.getIsDisqualified());
     }
-
 }
